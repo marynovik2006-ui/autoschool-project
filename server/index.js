@@ -5,6 +5,8 @@ require('dotenv').config();
 
 // Импортируем маршруты
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
 
 const app = express();
 
@@ -17,6 +19,9 @@ app.get('/', (req, res) => {
 
 // Подключаем маршруты авторизации
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/sessions', sessionRoutes);
+
 
 // Проверка БД
 app.get('/api/test-db', async (req, res) => {
