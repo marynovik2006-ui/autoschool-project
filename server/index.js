@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
 require('dotenv').config();
+const path = require('path');
 
 // Импортируем маршруты
 const authRoutes = require('./routes/authRoutes');
@@ -13,6 +14,8 @@ const instructorRoutes = require('./routes/instructorRoutes');
 const app = express();
 
 app.use(cors());
+// Раздача статических файлов (чтобы мы могли видеть загруженные картинки)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 
 app.get('/', (req, res) => {

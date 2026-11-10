@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate(); // Хук для перехода между страницами
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -13,7 +15,17 @@ export default function Login() {
         username,
         password
       });
-      setMessage(`Добро пожаловать, ${response.data.user.username}! Ваша роль: ${response.data.user.role}`);
+      
+      const user = response.data.user;
+      
+      // Сохраняем данные пользователя в localStorage (чтобы не потерять при обновлении страницы)
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // Перенаправляем в зависимости от роли
+      if (user.role === 'ADMIN') navigate('/admin');
+      else if (user.role === 'INSTRUCTOR') navigate('/instructor');
+      else if (user.role === 'STUDENT') navigate('/student');
+
     } catch (error) {
       setMessage(error.response?.data?.message || 'Ошибка входа');
     }
@@ -35,7 +47,7 @@ export default function Login() {
           Войти
         </button>
       </form>
-      {message && <p style={{ marginTop: '15px', color: message.includes('Добро пожаловать') ? 'green' : 'red' }}>{message}</p>}
+      {message && <p style={{ marginTop: '15px', color: 'red' }}>{message}</p>}
     </div>
   );
 }
