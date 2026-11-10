@@ -147,4 +147,25 @@ router.post('/cars', async (req, res) => {
     }
 });
 
+// ============================================
+// ПОЛУЧИТЬ СПИСОК ВСЕХ АВТОМОБИЛЕЙ
+// ============================================
+router.get('/cars', async (req, res) => {
+    try {
+        // Достаем машины вместе с именами инструкторов
+        const [cars] = await pool.query(`
+            SELECT c.id, c.brand, c.plate_number, c.transmission, c.status,
+                   u.username AS instructor_name
+            FROM cars c
+            LEFT JOIN instructors i ON c.instructor_id = i.id
+            LEFT JOIN users u ON i.user_id = u.id
+            ORDER BY c.id
+        `);
+        res.json(cars);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Ошибка при получении списка автомобилей' });
+    }
+});
+
 module.exports = router;
