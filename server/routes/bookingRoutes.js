@@ -156,4 +156,54 @@ router.get('/student/:studentId', async (req, res) => {
     }
 });
 
+// ============================================
+// ОТМЕНИТЬ ЗАПИСЬ (с проверкой правила "2 часа")
+// ============================================
+router.put('/:id/cancel', async (req, res) => {
+    try {
+        const { id } = req.params; // ID записи (booking_id)
+
+        // 1. Получаем информацию о записи и времени начала занятия
+        const [bookings] = await pool.query(`
+            SELECT b.id, b.status, s.start_time 
+            FROM bookings b
+            JOIN sessions s ON b.session_id = s.id
+            WHERE b.id = ?
+        `, [id]);
+
+        if (bookings.length === 0) {
+            return res.status(404).json({ message: 'Запись не найдена' });
+        }
+
+        const booking = bookings[0];
+
+        if (booking.status === 'CANCELLED') {
+            return res.status(400).json({ message: 'Запись уже отменена' });
+        }
+
+        // 2. Проверяем, сколько времени осталось до занятия
+        const now = new Date();
+        const startTime = new Date(booking.start_time);
+        const diffHours = (startTime - now) / (1000 * 60 * 60); // разница в часах
+
+        if (diffHours < 2) {
+            return res.status(400).json({ 
+                message: 'Отмена невозможна: до начала занятия осталось менее 2 часов' 
+            });
+        }
+
+        // 3. Если всё ок — меняем статус на CANCELLED
+        await pool.query(
+            'UPDATE bookings SET status = "CANCELLED" WHERE id = ?',
+            [id]
+        );
+
+        res.json({ message: 'Запись успешно отменена' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Ошибка сервера при отмене записи' });
+    }
+});
+
 module.exports = router;
