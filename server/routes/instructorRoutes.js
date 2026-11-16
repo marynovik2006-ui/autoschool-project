@@ -6,13 +6,21 @@ const pool = require('../db');
 // ПОЛУЧИТЬ ЗАНЯТИЯ КОНКРЕТНОГО ИНСТРУКТОРА
 // ============================================
 // URL: GET /api/instructor/:instructorId/sessions
+// ============================================
+// ПОЛУЧИТЬ ЗАНЯТИЯ КОНКРЕТНОГО ИНСТРУКТОРА (с подсчетом неоцененных)
+// ============================================
 router.get('/:instructorId/sessions', async (req, res) => {
     try {
         const { instructorId } = req.params;
 
         const [sessions] = await pool.query(`
             SELECT s.id, s.start_time, s.duration_min, 
-                   c.brand AS car_brand, c.plate_number AS car_plate
+                   c.brand AS car_brand, c.plate_number AS car_plate,
+                   (SELECT COUNT(*) 
+                    FROM bookings b 
+                    LEFT JOIN grades g ON b.id = g.booking_id 
+                    WHERE b.session_id = s.id AND b.status = 'ACTIVE' AND g.id IS NULL
+                   ) AS ungraded_count
             FROM sessions s
             LEFT JOIN cars c ON s.car_id = c.id
             WHERE s.instructor_id = ?

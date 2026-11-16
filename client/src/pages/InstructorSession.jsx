@@ -54,7 +54,7 @@ export default function InstructorSession() {
       </button>
 
       <div className="card">
-        <h2 style={{ marginTop: 0, color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                <h2 style={{ marginTop: 0, color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
           <User size={24} /> Записавшиеся курсанты
         </h2>
 
