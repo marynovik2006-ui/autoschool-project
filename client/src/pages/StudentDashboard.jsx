@@ -8,15 +8,14 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ text: '', type: '' });
 
-  // Получаем данные текущего пользователя из localStorage
+  
+  
+    // Достаем данные пользователя из localStorage
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : null;
   
-  // ВАЖНО: В таблице students ID может не совпадать с ID пользователя.
-  // Но в нашей базе курсант Петров имеет user_id = 3, а student_id = 1.
-  // Пока для теста мы жестко пропишем student_id = 1, но позже мы это исправим, 
-  // добавив student_id в ответ при логине.
-  const studentId = 1; 
+  // Берем ID курсанта из профиля (или 0, если его нет)
+  const studentId = user?.student_id || 0; 
 
   const fetchSessions = async () => {
     try {

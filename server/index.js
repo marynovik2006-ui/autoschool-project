@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const pool = require('./db');
 require('dotenv').config();
-const path = require('path');
+
 
 // Импортируем маршруты
 const authRoutes = require('./routes/authRoutes');
@@ -10,6 +11,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const instructorRoutes = require('./routes/instructorRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
@@ -28,6 +30,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/instructor', instructorRoutes);
+app.use('/api/upload', uploadRoutes);
 
 
 

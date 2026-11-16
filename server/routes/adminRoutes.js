@@ -76,12 +76,14 @@ router.post('/create-user', async (req, res) => {
 // ============================================
 // ПОЛУЧИТЬ СПИСОК ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
 // ============================================
+// ============================================
+// ПОЛУЧИТЬ СПИСОК ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
+// ============================================
 router.get('/users', async (req, res) => {
     try {
-        // Получаем пользователей вместе с их профилями (JOIN)
         const [users] = await pool.query(`
-            SELECT u.id, u.username, u.email, u.phone, u.role, u.is_blocked, u.created_at,
-                   s.group_name, s.contract_number,
+            SELECT u.id, u.username, u.email, u.phone, u.role, u.is_blocked, u.created_at, u.avatar_url, 
+                   s.group_name, s.contract_number, s.hours_driven, s.hours_total,
                    i.categories, i.experience_years
             FROM users u
             LEFT JOIN students s ON u.id = s.user_id

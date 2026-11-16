@@ -2,29 +2,42 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/Layout';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft, Upload, User as UserIcon } from 'lucide-react';
 
 export default function UserProfile() {
-  const { id } = useParams();
+  const { id } = useParams(); // ID из URL (если админ смотрит чужой профиль)
   const navigate = useNavigate();
+  
+  // Данные текущего авторизованного пользователя
+  const currentUserString = localStorage.getItem('user');
+  const currentUser = currentUserString ? JSON.parse(currentUserString) : null;
+
+  // Если id нет в URL, значит пользователь смотрит СВОЙ профиль
+  const targetUserId = id || (currentUser ? currentUser.id : null);
+
   const [user, setUser] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
 
-  // Загружаем данные конкретного пользователя
   const fetchUser = async () => {
     try {
+      // Получаем список всех пользователей (в идеале нужен API /users/:id, но для простоты используем существующий)
       const response = await axios.get(`http://localhost:5000/api/admin/users`);
-      // Находим нужного пользователя в списке (так как у нас нет отдельного API для одного юзера)
-      const foundUser = response.data.find(u => u.id === parseInt(id));
+      const foundUser = response.data.find(u => u.id === parseInt(targetUserId));
       setUser(foundUser);
+      
+      // Проверяем, смотрит ли пользователь свой профиль
+      if (currentUser && currentUser.id === parseInt(targetUserId)) {
+        setIsOwnProfile(true);
+      }
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
-    fetchUser();
-  }, [id]);
+    if (targetUserId) fetchUser();
+  }, [targetUserId]);
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
@@ -35,7 +48,7 @@ export default function UserProfile() {
 
     setUploading(true);
     try {
-      await axios.post(`http://localhost:5000/api/upload/${id}/avatar`, formData, {
+      await axios.post(`http://localhost:5000/api/upload/${targetUserId}/avatar`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       fetchUser(); // Обновляем данные, чтобы показать новую картинку
@@ -48,37 +61,51 @@ export default function UserProfile() {
 
   if (!user) return <Layout title="Загрузка..."><p>Загрузка...</p></Layout>;
 
-  // Формируем полный URL для картинки (если она есть)
   const avatarUrl = user.avatar_url ? `http://localhost:5000${user.avatar_url}` : null;
+
+  // Определяем, куда вести кнопку "Назад"
+  const handleBack = () => {
+    if (currentUser.role === 'ADMIN') navigate('/admin/users');
+    else if (currentUser.role === 'STUDENT') navigate('/student');
+    else navigate('/instructor');
+  };
+
+  // Может ли текущий пользователь менять аватарку?
+  // 1. Если это его собственный профиль
+  // 2. И он НЕ администратор
+  const canEditAvatar = isOwnProfile && user.role !== 'ADMIN';
 
   return (
     <Layout title={`Профиль: ${user.username}`}>
-      <button onClick={() => navigate('/admin/users')} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: 'var(--primary-color)', cursor: 'pointer', marginBottom: '20px', fontSize: '16px' }}>
-        <ArrowLeft size={20} /> Назад к списку
+      <button onClick={handleBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: 'var(--primary-color)', cursor: 'pointer', marginBottom: '20px', fontSize: '16px' }}>
+        <ArrowLeft size={20} /> Назад
       </button>
 
       <div className="card" style={{ display: 'flex', gap: '30px', alignItems: 'flex-start' }}>
         
         {/* Аватарка */}
         <div style={{ textAlign: 'center' }}>
-          <div style={{ width: '150px', height: '150px', borderRadius: '50%', backgroundColor: 'var(--border-color)', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '15px' }}>
+          <div style={{ width: '150px', height: '150px', borderRadius: '50%', backgroundColor: 'var(--border-color)', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '15px', border: '4px solid var(--card-bg)', boxShadow: 'var(--shadow)' }}>
             {avatarUrl ? (
               <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <span style={{ color: 'var(--text-muted)' }}>Нет фото</span>
+              <UserIcon size={60} style={{ color: 'var(--text-muted)' }} />
             )}
           </div>
           
-          <label className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px 12px', fontSize: '14px' }}>
-            <Upload size={16} /> {uploading ? 'Загрузка...' : 'Загрузить фото'}
-            <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
-          </label>
+          {/* Показываем кнопку загрузки только если это свой профиль и не админ */}
+          {canEditAvatar && (
+            <label className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px 12px', fontSize: '14px' }}>
+              <Upload size={16} /> {uploading ? 'Загрузка...' : 'Загрузить фото'}
+              <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+            </label>
+          )}
         </div>
 
         {/* Данные */}
         <div style={{ flex: 1, display: 'grid', gap: '10px' }}>
           <h2 style={{ margin: 0, color: 'var(--primary-color)' }}>{user.username}</h2>
-          <p><b>Роль:</b> {user.role}</p>
+          <p><b>Роль:</b> {user.role === 'STUDENT' ? 'Курсант' : user.role === 'INSTRUCTOR' ? 'Инструктор' : 'Администратор'}</p>
           <p><b>Email:</b> {user.email}</p>
           <p><b>Телефон:</b> {user.phone || '—'}</p>
           
@@ -86,6 +113,7 @@ export default function UserProfile() {
             <>
               <p><b>Группа:</b> {user.group_name || '—'}</p>
               <p><b>Договор:</b> {user.contract_number || '—'}</p>
+              <p><b>Отъезжено часов:</b> {user.hours_driven || 0} / {user.hours_total || 56}</p>
             </>
           )}
           

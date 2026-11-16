@@ -10,7 +10,6 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    // Уникальное имя: user_id + timestamp + расширение
     const ext = path.extname(file.originalname);
     cb(null, `user_${req.params.id}_${Date.now()}${ext}`);
   }
@@ -26,10 +25,8 @@ router.post('/:id/avatar', upload.single('avatar'), async (req, res) => {
       return res.status(400).json({ message: 'Файл не загружен' });
     }
 
-    // Путь к файлу, который мы будем отдавать клиенту
     const avatarUrl = `/uploads/${req.file.filename}`;
 
-    // Обновляем пользователя в БД
     await pool.query(
       'UPDATE users SET avatar_url = ? WHERE id = ?',
       [avatarUrl, id]
@@ -42,9 +39,7 @@ router.post('/:id/avatar', upload.single('avatar'), async (req, res) => {
   }
 });
 
-// ============================================
-// ЗАГРУЗКА ФОТО ДЛЯ МАШИНЫ
-// ============================================
+// ЗАГРУЗКА ФОТО ДЛЯ МАШИНЫ (убедись, что этот блок тоже есть)
 const carStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');

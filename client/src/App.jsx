@@ -9,6 +9,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import StudentBookings from './pages/StudentBookings';
 
 
+
 function App() {
   return (
     <Router>
@@ -20,11 +21,14 @@ function App() {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/users/:id" element={<UserProfile />} />
         <Route path="/admin/cars" element={<AdminCars />} />
+        <Route path="/admin/users/:id" element={<UserProfile />} />
         
         {/* Маршруты инструктора и курсанта (пока заглушки) */}
         <Route path="/instructor" element={<InstructorDashboard />} />
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/student/bookings" element={<StudentBookings />} />
+        <Route path="/student/profile" element={<UserProfile />} />
+        <Route path="/instructor/profile" element={<UserProfile />} />
         
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

@@ -8,7 +8,9 @@ export default function StudentBookings() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ text: '', type: '' });
 
-  const studentId = 1; // Пока жестко, потом исправим
+    const userString = localStorage.getItem('user');
+  const user = userString ? JSON.parse(userString) : null;
+  const studentId = user?.student_id || 0;
 
   const fetchBookings = async () => {
     try {
