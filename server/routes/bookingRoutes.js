@@ -181,11 +181,19 @@ router.put('/:id/cancel', async (req, res) => {
             return res.status(400).json({ message: 'Запись уже отменена' });
         }
 
-        // 2. Проверяем, сколько времени осталось до занятия
+                // 2. Проверяем время
         const now = new Date();
         const startTime = new Date(booking.start_time);
         const diffHours = (startTime - now) / (1000 * 60 * 60); // разница в часах
 
+        // Если занятие уже началось или прошло (diffHours < 0)
+        if (diffHours <= 0) {
+            return res.status(400).json({ 
+                message: 'Занятие уже прошло, отмена невозможна' 
+            });
+        }
+
+        // Если до занятия меньше 2 часов
         if (diffHours < 2) {
             return res.status(400).json({ 
                 message: 'Отмена невозможна: до начала занятия осталось менее 2 часов' 

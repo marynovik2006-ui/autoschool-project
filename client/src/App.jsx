@@ -6,6 +6,7 @@ import AdminCars from './pages/AdminCars';
 import UserProfile from './pages/UserProfile';     
 import InstructorDashboard from './pages/InstructorDashboard';
 import StudentDashboard from './pages/StudentDashboard';
+import StudentBookings from './pages/StudentBookings';
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         {/* Маршруты инструктора и курсанта (пока заглушки) */}
         <Route path="/instructor" element={<InstructorDashboard />} />
         <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/student/bookings" element={<StudentBookings />} />
         
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
