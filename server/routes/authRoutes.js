@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
@@ -23,9 +24,12 @@ router.post('/login', async (req, res) => {
 
         const user = users[0];
 
-        if (password !== user.password_hash) {
-            return res.status(401).json({ message: 'Неверный логин или пароль' });
-        }
+        // Стало:
+       const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+        if (!isPasswordValid) {
+              return res.status(401).json({ message: 'Неверный логин или пароль' });
+               }
+        
 
         if (user.is_blocked) {
             return res.status(403).json({ message: 'Ваш аккаунт заблокирован администратором' });

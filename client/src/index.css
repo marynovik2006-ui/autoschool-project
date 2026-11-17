@@ -96,3 +96,73 @@ input:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.2);
 }
+
+/* ============================================
+   АДАПТИВНОСТЬ (Медиазапросы)
+   ============================================ */
+
+/* Для планшетов и небольших ноутбуков (до 1024px) */
+@media (max-width: 1024px) {
+  /* Уменьшаем боковое меню */
+  .sidebar {
+    width: 200px !important;
+  }
+}
+
+/* Для мобильных телефонов (до 768px) */
+@media (max-width: 768px) {
+  /* 1. Меняем направление главного контейнера (был row, станет column) */
+  .app-container {
+    flex-direction: column !important;
+  }
+
+  /* 2. Боковое меню превращается в верхнюю/нижнюю панель */
+  .sidebar {
+    width: 100% !important;
+    height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px !important;
+  }
+
+  /* Ссылки в меню становятся горизонтальными */
+  .sidebar-links {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    padding: 0 !important;
+    flex: 1 !important;
+    justify-content: center !important;
+  }
+
+  .sidebar-links a {
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+  }
+
+  /* Скрываем иконки в меню на телефоне, чтобы сэкономить место */
+  .sidebar-links svg {
+    display: none !important;
+  }
+
+  /* 3. Рабочая область */
+  .main-content {
+    padding: 15px !important;
+  }
+
+  /* 4. Таблицы (чтобы не вылезали за экран) */
+  .card table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+
+  /* 5. Карточки (статистика) */
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

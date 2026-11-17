@@ -9,6 +9,8 @@ import StudentDashboard from './pages/StudentDashboard';
 import StudentBookings from './pages/StudentBookings';
 import InstructorSession from './pages/InstructorSession';
 import AdminSessions from './pages/AdminSessions';
+import InstructorCar from './pages/InstructorCar';
+import InstructorStudents from './pages/InstructorStudents';
 
 
 
@@ -33,6 +35,8 @@ function App() {
         <Route path="/student/profile" element={<UserProfile />} />
         <Route path="/instructor/profile" element={<UserProfile />} />
         <Route path="/instructor/session/:id" element={<InstructorSession />} />
+        <Route path="/instructor/car" element={<InstructorCar />} />
+        <Route path="/instructor/students" element={<InstructorStudents />} />
         
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

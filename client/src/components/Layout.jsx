@@ -35,10 +35,12 @@ export default function Layout({ children, title }) {
         </>
       );
     }
-    if (user.role === 'INSTRUCTOR') {
+            if (user.role === 'INSTRUCTOR') {
       return (
         <>
           <Link to="/instructor" style={linkStyle}><Calendar size={20} style={iconStyle} /> Мои занятия</Link>
+          <Link to="/instructor/students" style={linkStyle}><Users size={20} style={iconStyle} /> Мои ученики</Link> {/* <-- НОВАЯ ССЫЛКА */}
+          <Link to="/instructor/car" style={linkStyle}><Car size={20} style={iconStyle} /> Мой автомобиль</Link>
           <Link to="/instructor/profile" style={linkStyle}><User size={20} style={iconStyle} /> Мой профиль</Link>
         </>
       );
@@ -47,10 +49,10 @@ export default function Layout({ children, title }) {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
+     <div className="app-container" style={{ display: 'flex', height: '100vh', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
       
       {/* Боковое меню */}
-      <div style={{ 
+            <div className="sidebar" style={{ 
         width: '260px', backgroundColor: 'var(--sidebar-bg)', color: 'var(--sidebar-text)', 
         display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow)', zIndex: 10
@@ -59,7 +61,7 @@ export default function Layout({ children, title }) {
           🎀 Автошкола
         </div>
         
-        <div style={{ flex: 1, padding: '20px 0', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <div className="sidebar-links" style={{ flex: 1, padding: '20px 0', display: 'flex', flexDirection: 'column', gap: '5px' }}>
           {renderMenu()}
         </div>
 
@@ -82,7 +84,7 @@ export default function Layout({ children, title }) {
         <header style={{ backgroundColor: 'var(--card-bg)', padding: '20px 30px', borderBottom: '1px solid var(--border-color)', boxShadow: 'var(--shadow)' }}>
           <h2 style={{ margin: 0, color: 'var(--primary-color)' }}>{title}</h2>
         </header>
-        <main style={{ padding: '30px', overflowY: 'auto', flex: 1 }}>
+                <main className="main-content" style={{ padding: '30px', overflowY: 'auto', flex: 1 }}>
           {children}
         </main>
       </div>

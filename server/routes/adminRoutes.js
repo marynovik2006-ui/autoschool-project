@@ -1,17 +1,15 @@
+const bcrypt = require('bcrypt');
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
 // Маршрут для создания нового пользователя (курсанта или инструктора)
+// Маршрут для создания нового пользователя (курсанта или инструктора)
 router.post('/create-user', async (req, res) => {
-    // Получаем данные из тела запроса
     const { username, password, email, phone, role, 
-            // Поля для курсанта
             group_name, contract_number, 
-            // Поля для инструктора
             categories, experience_years } = req.body;
 
-    // Проверка на обязательные поля
     if (!username || !password || !email || !role) {
         return res.status(400).json({ message: 'Заполните обязательные поля: username, password, email, role' });
     }
@@ -20,15 +18,19 @@ router.post('/create-user', async (req, res) => {
         return res.status(400).json({ message: 'Неверная роль. Допустимо: STUDENT, INSTRUCTOR, ADMIN' });
     }
 
-    const connection = await pool.getConnection(); // Для транзакции
+    const connection = await pool.getConnection();
 
     try {
         await connection.beginTransaction();
 
-        // 1. Создаем пользователя в таблице users
+        // ВОТ ТУТ МЫ ХЕШИРУЕМ ПАРОЛЬ
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // 1. Создаем пользователя в таблице users (используем hashedPassword вместо password)
         const [userResult] = await connection.query(
             'INSERT INTO users (username, password_hash, email, phone, role) VALUES (?, ?, ?, ?, ?)',
-            [username, password, email, phone || null, role]
+            [username, hashedPassword, email, phone || null, role]
         );
 
         const newUserId = userResult.insertId;
@@ -49,7 +51,6 @@ router.post('/create-user', async (req, res) => {
             );
         }
 
-        // Если всё успешно — фиксируем изменения в БД
         await connection.commit();
 
         res.status(201).json({ 
@@ -58,10 +59,8 @@ router.post('/create-user', async (req, res) => {
         });
 
     } catch (error) {
-        // Если произошла ошибка (например, такой username уже есть) — откатываем всё назад
         await connection.rollback();
         
-        // Обработка ошибки уникальности (дубликат username или email)
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({ message: 'Пользователь с таким логином или email уже существует' });
         }
@@ -69,7 +68,7 @@ router.post('/create-user', async (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Ошибка сервера при создании пользователя' });
     } finally {
-        connection.release(); // Возвращаем соединение в пул
+        connection.release();
     }
 });
 

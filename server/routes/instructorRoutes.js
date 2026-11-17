@@ -135,4 +135,54 @@ router.post('/grades', async (req, res) => {
     }
 });
 
+// ============================================
+// ПОЛУЧИТЬ АВТОМОБИЛЬ ИНСТРУКТОРА
+// ============================================
+// URL: GET /api/instructor/:instructorId/car
+router.get('/:instructorId/car', async (req, res) => {
+    try {
+        const { instructorId } = req.params;
+
+        const [cars] = await pool.query(`
+            SELECT id, brand, plate_number, transmission, status, photo_url
+            FROM cars
+            WHERE instructor_id = ?
+        `, [instructorId]);
+
+        // Если машины нет, возвращаем пустой массив
+        res.json(cars);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Ошибка при получении автомобиля' });
+    }
+});
+
+// ============================================
+// ПОЛУЧИТЬ СПИСОК УЧЕНИКОВ ИНСТРУКТОРА
+// ============================================
+// URL: GET /api/instructor/:instructorId/students
+router.get('/:instructorId/students', async (req, res) => {
+    try {
+        const { instructorId } = req.params;
+
+        // Достаем уникальных курсантов, которые записаны на занятия этого инструктора
+        const [students] = await pool.query(`
+            SELECT DISTINCT 
+                   u.id, u.username, u.email, u.phone, u.avatar_url,
+                   st.group_name, st.hours_driven, st.hours_total,
+                   COUNT(b.id) AS lessons_count
+            FROM bookings b
+            JOIN students st ON b.student_id = st.id
+            JOIN users u ON st.user_id = u.id
+            JOIN sessions s ON b.session_id = s.id
+            WHERE s.instructor_id = ? AND b.status != 'CANCELLED'
+            GROUP BY u.id, st.id
+        `, [instructorId]);
+
+        res.json(students);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Ошибка при получении списка учеников' });
+    }
+});
 module.exports = router;
