@@ -12,6 +12,9 @@ router.post('/', async (req, res) => {
         if (!start_time || !instructor_id) {
             return res.status(400).json({ message: 'Укажите время начала и ID инструктора' });
         }
+        if (!instructor_id || isNaN(Number(instructor_id))) {
+            return res.status(400).json({ message: 'Некорректный ID инструктора' });
+        }
 
         // Проверка: не занят ли уже этот инструктор или машина в это время?
         // (Для простоты проверяем только точное совпадение времени начала)

@@ -8,6 +8,7 @@ import InstructorDashboard from './pages/InstructorDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import StudentBookings from './pages/StudentBookings';
 import InstructorSession from './pages/InstructorSession';
+import AdminSessions from './pages/AdminSessions';
 
 
 
@@ -23,6 +24,7 @@ function App() {
         <Route path="/admin/users/:id" element={<UserProfile />} />
         <Route path="/admin/cars" element={<AdminCars />} />
         <Route path="/admin/users/:id" element={<UserProfile />} />
+        <Route path="/admin/sessions" element={<AdminSessions />} />
         
         {/* Маршруты инструктора и курсанта (пока заглушки) */}
         <Route path="/instructor" element={<InstructorDashboard />} />
